@@ -1,4 +1,5 @@
 ### Loading Libraries ###
+import sys
 import pandas as pd
 import numpy as np
 
@@ -9,7 +10,7 @@ np.random.seed(123)
 data = pd.DataFrame({"Drugs":np.arange(1,6)})
 data = pd.concat([data, pd.DataFrame(np.random.randint(0, 7, size = (5,6)))], axis = 1)
 data.columns = ['Drugs'] + list(np.arange(1,7))
-
+print(data)
 
 ### Initializations ###
 num_replicates = 3
@@ -36,6 +37,7 @@ def row_count(data):
 
 count_matrix = data.apply(row_count, axis = 1)
 count_matrix['total'] = count_matrix.drop(["Drugs"], axis = 1).sum(axis = 1)
+print(count_matrix)
 
 
 ### Constructing Volume Matrix ###
