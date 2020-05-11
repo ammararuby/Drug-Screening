@@ -9,22 +9,17 @@ def usage():
 
     Usage example:
 
-    python Dilution_matrix.py 3 200 mixing_matrix.csv dose_matrix_stock.csv
+    python dilution.py 3 200 Sample_Input_Files/mixing_matrix.csv Sample_Input_Files/dose_matrix_stock.csv
 
     - 3 is the number of replicates
     - 200 is the assay volume
     - mixing_matrix.csv is the file containing the experimental drug combinations where each row represents a specific drug and each 
-        column represent a different drug combination. Drug concentrations are represented as coefficient or coded concentrations. 
+        column represent a different drug combination. Drug concentrations are represented as coefficient (or coded concentrations). 
     - dose_matrix_stock.csv is the file containing the dosing information for each drug (real concentations corresponding to coded concentrations) and 
         the initial stock concentration for each drug
+    
+    See example input files for formatting example. 
 
-
-        NOTE: if some drugs have fewer than the maximum number of concentrations, always use the highest coded concentrations possible
-        and leave empty lower concentrations. In example, drug 1 has only 1 dose and drug 2 has 3 doses
-        i.e.
-               Dose 1   Dose2   Dose3
-        Drug 1  0       0       5
-        Drug 2  1       2       5
     """)
 
 
@@ -84,8 +79,7 @@ def gen_volume_matrix(dose_count_matrix, base_volume):
 # Construct table of dilution factors. Table containing the dilution factor needed for serial dilutions, i.e. the ratio
 # between each drug dose and the next higest dose. Rhe highest drug dose should be diluted from the stock.
 def calc_dilution_factors(dose_matrix_stock, mixing_matrix, min_num_doses, max_num_doses):
-    dilution_factor = pd.DataFrame(
-        index=mixing_matrix.index)
+    dilution_factor = pd.DataFrame(index=mixing_matrix.index)
 
     cols = dose_matrix_stock.columns
     for i in range(0, len(cols) - 1):
@@ -129,10 +123,12 @@ def main():
     dose_count_matrix = count_doses(mixing_matrix, min_num_doses, max_num_doses)
     volume_matrix = gen_volume_matrix(dose_count_matrix, base_volume)
     dilution_factors = calc_dilution_factors(dose_matrix, mixing_matrix, min_num_doses, max_num_doses)
-    dilution_volumes, dilution_volumes_medium = calc_dilution_volumes(dilution_factors, volume_matrix, min_num_doses, max_num_doses)
+    dilution_volumes_stock, dilution_volumes_medium = calc_dilution_volumes(dilution_factors, volume_matrix, min_num_doses, max_num_doses)
     mixture_medium = calc_mixture_medium(mixing_matrix, base_volume, num_mixtures)
 
-    dilution_volumes.to_csv('dilution_volumes.csv')
+    print("The volume of each drug to be added per mixture is %s" % base_volume)
+
+    dilution_volumes_stock.to_csv('dilution_volumes_stock.csv')
     dilution_volumes_medium.to_csv('dilution_volumes_medium.csv')
     mixture_medium.to_csv('mixture_medium.csv')
 
